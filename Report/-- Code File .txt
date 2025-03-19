@@ -1,0 +1,163 @@
+-- Create the database and use it
+CREATE DATABASE SportsDB;
+USE SportsDB;
+
+-- Create Department table
+CREATE TABLE Department (
+    Dept_Code INT PRIMARY KEY,
+    Dept_short_name VARCHAR(50),
+    Dept_Head VARCHAR(100),
+    Established_Year INT,
+    Budget DECIMAL(10,2)
+);
+
+-- Create Team table
+CREATE TABLE Team (
+    Team_ID INT PRIMARY KEY,
+    Dept_Code INT,
+    Manager VARCHAR(100),
+    Name VARCHAR(100),
+    Player_Reg_ID INT,
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code)
+);
+
+-- Create Matches table (renamed from Match)
+CREATE TABLE Matches (
+    Match_ID INT PRIMARY KEY,
+    Stadium_Name VARCHAR(100),
+    Match_Date DATE,
+    Team1_ID INT,
+    Team2_ID INT,
+    FOREIGN KEY (Team1_ID) REFERENCES Team(Team_ID),
+    FOREIGN KEY (Team2_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Participate table
+CREATE TABLE Participate (
+    Dept_Code INT,
+    Match_ID INT,
+    PRIMARY KEY (Dept_Code, Match_ID),
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+-- Create Player table
+CREATE TABLE Player (
+    Player_ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Contact_No VARCHAR(15),
+    Age INT,
+    Position VARCHAR(50),
+    Minutes_Played INT,
+    Skills_Rating DECIMAL(3,2),
+    Team_ID INT,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Match_Player table
+CREATE TABLE Match_Player (
+    Match_ID INT,
+    Player_ID INT,
+    PRIMARY KEY (Match_ID, Player_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID)
+);
+
+-- Create Score table
+CREATE TABLE Score (
+    Score_ID INT PRIMARY KEY,
+    Number INT,
+    Duration INT,
+    Match_ID INT,
+    Team_ID INT,
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Contributed table
+CREATE TABLE Contributed (
+    Player_ID INT,
+    Score_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Player_ID, Score_ID, Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Score_ID) REFERENCES Score(Score_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+-- Create Referee table
+CREATE TABLE Referee (
+    Referee_ID INT PRIMARY KEY,
+    Role VARCHAR(50),
+    Name VARCHAR(100),
+    Age INT,
+    Institute VARCHAR(100)
+);
+
+-- Create Referee_Matches table
+CREATE TABLE Referee_Matches (
+    Referee_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Referee_ID, Match_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+-- Create Punishment table
+CREATE TABLE Punishment (
+    Punishment_ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Player_ID INT,
+    Player_Semester VARCHAR(50),
+    Referee_ID INT,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID)
+);
+
+-- Create Player_Punishment table
+CREATE TABLE Player_Punishment (
+    Player_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Player_ID, Punishment_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+
+-- Create Match_Punishment table
+CREATE TABLE Match_Punishment (
+    Match_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Match_ID, Punishment_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+
+-- Insert sample data into Department
+INSERT INTO Department VALUES 
+(1, 'CSE', 'Dr. Rahman', 2005, 50000.00),
+(2, 'EEE', 'Dr. Alam', 2010, 60000.00),
+(3, 'BBA', 'Dr. Khan', 2012, 55000.00);
+
+-- Insert sample data into Team
+INSERT INTO Team VALUES 
+(1, 1, 'John Smith', 'CSE Warriors', 101),
+(2, 2, 'Alice Brown', 'EEE Titans', 102),
+(3, 3, 'Michael Johnson', 'BBA Strikers', 103);
+
+-- Insert sample data into Matches
+INSERT INTO Matches VALUES 
+(1, 'National Stadium', '2024-06-01', 1, 2),
+(2, 'University Ground', '2024-06-02', 2, 3),
+(3, 'City Arena', '2024-06-03', 1, 3);
+
+-- Insert sample data into Player
+INSERT INTO Player VALUES 
+(1, 'David Miller', '1234567890', 22, 'Forward', 90, 4.5, 1),
+(2, 'Mark Lee', '0987654321', 23, 'Midfielder', 85, 4.2, 2),
+(3, 'James Bond', '1122334455', 21, 'Defender', 88, 4.0, 3);
+
+-- Insert sample data into Referee
+INSERT INTO Referee VALUES 
+(1, 'Head Referee', 'Samuel Adams', 45, 'FIFA'),
+(2, 'Assistant Referee', 'David Warner', 42, 'AFC'),
+(3, 'Fourth Official', 'Tom Hardy', 38, 'Local League');

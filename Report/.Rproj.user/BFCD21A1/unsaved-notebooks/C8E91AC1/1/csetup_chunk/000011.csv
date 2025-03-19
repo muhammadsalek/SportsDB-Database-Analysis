@@ -1,0 +1,329 @@
+"0","knitr::opts_chunk$set(echo = TRUE)"
+"0",""
+"0","# Function to check and install missing packages"
+"0","to_install <- c(""DBI"", ""RSQLite"", ""ggplot2"", ""dplyr"", ""knitr"")"
+"0","install_if_missing <- function(pkg) {"
+"0","  if (!requireNamespace(pkg, quietly = TRUE)) {"
+"0","    install.packages(pkg)"
+"0","  }"
+"0","  library(pkg, character.only = TRUE)"
+"0","}"
+"0",""
+"0","# Install and load required packages"
+"0","lapply(to_install, install_if_missing)"
+"1","The following package(s) will be installed:
+"
+"1","- DBI [1.2.3]
+"
+"1","These packages will be installed into ""D:/Academic Statistics/second year2/DBMS CLS/Project/Final/Report/renv/library/windows/R-4.4/x86_64-w64-mingw32"".
+"
+"1","
+"
+"0","Y"
+"1","
+"
+"1","# Installing packages --------------------------------------------------------
+"
+"1","- Installing DBI ...                            "
+"1","OK [copied from cache in 0.27s]
+"
+"1","Successfully installed 1 package in 0.28 seconds.
+"
+"1","# Downloading packages -------------------------------------------------------
+"
+"1","- Downloading RSQLite from CRAN ...             "
+"1","OK [1.5 Mb in 2.6s]
+"
+"1","- Downloading bit from CRAN ...                 "
+"1","OK [618.1 Kb in 3.1s]
+"
+"1","- Downloading plogr from CRAN ...               "
+"1","OK [18.9 Kb in 2.1s]
+"
+"1","Successfully downloaded 3 packages in 8.1 seconds.
+"
+"1","
+"
+"1","The following package(s) will be installed:
+"
+"1","- bit       [4.6.0]
+"
+"1","- bit64     [4.6.0-1]
+"
+"1","- blob      [1.2.4]
+"
+"1","- cpp11     [0.5.2]
+"
+"1","- pkgconfig [2.0.3]
+"
+"1","- plogr     [0.2.0]
+"
+"1","- RSQLite   [2.3.9]
+"
+"1","These packages will be installed into ""D:/Academic Statistics/second year2/DBMS CLS/Project/Final/Report/renv/library/windows/R-4.4/x86_64-w64-mingw32"".
+"
+"1","
+"
+"0","Y"
+"1","
+"
+"1","# Installing packages --------------------------------------------------------
+"
+"1","- Installing bit ...                            "
+"1","OK [installed binary and cached in 0.48s]
+"
+"1","- Installing bit64 ...                          "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing blob ...                           "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing pkgconfig ...                      "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing plogr ...                          "
+"1","OK [installed binary and cached in 0.35s]
+"
+"1","- Installing cpp11 ...                          "
+"1","OK [copied from cache in 0.36s]
+"
+"1","- Installing RSQLite ...                        "
+"1","OK [installed binary and cached in 0.68s]
+"
+"1","Successfully installed 7 packages in 3.6 seconds.
+"
+"1","The following package(s) will be installed:
+"
+"1","- colorspace   [2.1-1]
+"
+"1","- fansi        [1.0.6]
+"
+"1","- farver       [2.1.2]
+"
+"1","- ggplot2      [3.5.1]
+"
+"1","- gtable       [0.3.6]
+"
+"1","- isoband      [0.2.7]
+"
+"1","- labeling     [0.4.3]
+"
+"1","- munsell      [0.5.1]
+"
+"1","- pillar       [1.10.1]
+"
+"1","- RColorBrewer [1.1-3]
+"
+"1","- scales       [1.3.0]
+"
+"1","- tibble       [3.2.1]
+"
+"1","- utf8         [1.2.4]
+"
+"1","- viridisLite  [0.4.2]
+"
+"1","- withr        [3.0.2]
+"
+"1","These packages will be installed into ""D:/Academic Statistics/second year2/DBMS CLS/Project/Final/Report/renv/library/windows/R-4.4/x86_64-w64-mingw32"".
+"
+"1","
+"
+"0","Y"
+"1","
+"
+"1","# Installing packages --------------------------------------------------------
+"
+"1","- Installing gtable ...                         "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing isoband ...                        "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing farver ...                         "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing labeling ...                       "
+"1","OK [copied from cache in 0.26s]
+"
+"1","- Installing colorspace ...                     "
+"1","OK [copied from cache in 0.5s]
+"
+"1","- Installing munsell ...                        "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing RColorBrewer ...                   "
+"1","OK [copied from cache in 0.23s]
+"
+"1","- Installing viridisLite ...                    "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing scales ...                         "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing fansi ...                          "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing utf8 ...                           "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing pillar ...                         "
+"1","OK [copied from cache in 0.26s]
+"
+"1","- Installing tibble ...                         "
+"1","OK [copied from cache in 0.35s]
+"
+"1","- Installing withr ...                          "
+"1","OK [copied from cache in 0.24s]
+"
+"1","- Installing ggplot2 ...                        "
+"1","OK [copied from cache in 0.25s]
+"
+"1","Successfully installed 15 packages in 4.2 seconds.
+"
+"1","The following package(s) will be installed:
+"
+"1","- dplyr      [1.1.4]
+"
+"1","- generics   [0.1.3]
+"
+"1","- tidyselect [1.2.1]
+"
+"1","These packages will be installed into ""D:/Academic Statistics/second year2/DBMS CLS/Project/Final/Report/renv/library/windows/R-4.4/x86_64-w64-mingw32"".
+"
+"1","
+"
+"0","Y"
+"1","
+"
+"1","# Installing packages --------------------------------------------------------
+"
+"1","- Installing generics ...                       "
+"1","OK [copied from cache in 0.23s]
+"
+"1","- Installing tidyselect ...                     "
+"1","OK [copied from cache in 0.25s]
+"
+"1","- Installing dplyr ...                          "
+"1","OK [copied from cache in 0.36s]
+"
+"1","Successfully installed 3 packages in 0.89 seconds.
+"
+"2","
+Attaching package: ‘dplyr’
+
+"
+"2","The following object is masked from ‘package:ggplot2’:
+
+    vars
+
+"
+"2","The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+"
+"2","The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union
+
+"
+"1","[[1]]
+"
+"1","[1]"
+"1"," ""DBI""      "
+"1"," ""stats""    "
+"1"," ""graphics"" "
+"1"," ""grDevices"""
+"1"," ""datasets"" "
+"1"," ""utils""    "
+"1","
+"
+"1","[7]"
+"1"," ""methods""  "
+"1"," ""base""     "
+"1","
+"
+"1","
+"
+"1","[[2]]
+"
+"1","[1]"
+"1"," ""RSQLite""  "
+"1"," ""DBI""      "
+"1"," ""stats""    "
+"1"," ""graphics"" "
+"1"," ""grDevices"""
+"1"," ""datasets"" "
+"1","
+"
+"1","[7]"
+"1"," ""utils""    "
+"1"," ""methods""  "
+"1"," ""base""     "
+"1","
+"
+"1","
+"
+"1","[[3]]
+"
+"1"," [1]"
+"1"," ""ggplot2""  "
+"1"," ""RSQLite""  "
+"1"," ""DBI""      "
+"1"," ""stats""    "
+"1"," ""graphics"" "
+"1"," ""grDevices"""
+"1","
+"
+"1"," [7]"
+"1"," ""datasets"" "
+"1"," ""utils""    "
+"1"," ""methods""  "
+"1"," ""base""     "
+"1","
+"
+"1","
+"
+"1","[[4]]
+"
+"1"," [1]"
+"1"," ""dplyr""    "
+"1"," ""ggplot2""  "
+"1"," ""RSQLite""  "
+"1"," ""DBI""      "
+"1"," ""stats""    "
+"1"," ""graphics"" "
+"1","
+"
+"1"," [7]"
+"1"," ""grDevices"""
+"1"," ""datasets"" "
+"1"," ""utils""    "
+"1"," ""methods""  "
+"1"," ""base""     "
+"1","
+"
+"1","
+"
+"1","[[5]]
+"
+"1"," [1]"
+"1"," ""knitr""    "
+"1"," ""dplyr""    "
+"1"," ""ggplot2""  "
+"1"," ""RSQLite""  "
+"1"," ""DBI""      "
+"1"," ""stats""    "
+"1","
+"
+"1"," [7]"
+"1"," ""graphics"" "
+"1"," ""grDevices"""
+"1"," ""datasets"" "
+"1"," ""utils""    "
+"1"," ""methods""  "
+"1"," ""base""     "
+"1","
+"
+"1","
+"

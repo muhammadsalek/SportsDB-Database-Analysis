@@ -1,0 +1,192 @@
+---
+  title: "SportsDB Database Analysis"
+author: "MD Salek Miah"
+date: "`r Sys.Date()`"
+output: html_document
+---
+  
+  ```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(DBI)
+library(RSQLite)
+library(ggplot2)
+library(dplyr)
+```
+
+## Introduction
+This report provides an analysis of the **SportsDB** database, including the structure and sample data for all 13 tables. The database contains information on departments, teams, matches, players, referees, scores, and punishments related to sports events.
+
+## Database Connection and Table Overview
+
+```{r connect_db}
+# Create SQLite in-memory database
+con <- dbConnect(RSQLite::SQLite(), ":memory:")
+
+# SQL Script: Create Tables
+sql_script <- """
+CREATE TABLE Department (
+    Dept_Code INT PRIMARY KEY,
+    Dept_short_name VARCHAR(50),
+    Dept_Head VARCHAR(100),
+    Established_Year INT,
+    Budget DECIMAL(10,2)
+);
+
+CREATE TABLE Team (
+    Team_ID INT PRIMARY KEY,
+    Dept_Code INT,
+    Manager VARCHAR(100),
+    Name VARCHAR(100),
+    Player_Reg_ID INT,
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code)
+);
+
+CREATE TABLE Matches (
+    Match_ID INT PRIMARY KEY,
+    Stadium_Name VARCHAR(100),
+    Match_Date DATE,
+    Team1_ID INT,
+    Team2_ID INT,
+    FOREIGN KEY (Team1_ID) REFERENCES Team(Team_ID),
+    FOREIGN KEY (Team2_ID) REFERENCES Team(Team_ID)
+);
+
+CREATE TABLE Participate (
+    Dept_Code INT,
+    Match_ID INT,
+    PRIMARY KEY (Dept_Code, Match_ID),
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+CREATE TABLE Player (
+    Player_ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Contact_No VARCHAR(15),
+    Age INT,
+    Position VARCHAR(50),
+    Minutes_Played INT,
+    Skills_Rating DECIMAL(3,2),
+    Team_ID INT,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+CREATE TABLE Match_Player (
+    Match_ID INT,
+    Player_ID INT,
+    PRIMARY KEY (Match_ID, Player_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID)
+);
+
+CREATE TABLE Score (
+    Score_ID INT PRIMARY KEY,
+    Number INT,
+    Duration INT,
+    Match_ID INT,
+    Team_ID INT,
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+CREATE TABLE Contributed (
+    Player_ID INT,
+    Score_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Player_ID, Score_ID, Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Score_ID) REFERENCES Score(Score_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+CREATE TABLE Referee (
+    Referee_ID INT PRIMARY KEY,
+    Role VARCHAR(50),
+    Name VARCHAR(100),
+    Age INT,
+    Institute VARCHAR(100)
+);
+
+CREATE TABLE Referee_Matches (
+    Referee_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Referee_ID, Match_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID)
+);
+
+CREATE TABLE Punishment (
+    Punishment_ID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Player_ID INT,
+    Player_Semester VARCHAR(50),
+    Referee_ID INT,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID)
+);
+
+CREATE TABLE Player_Punishment (
+    Player_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Player_ID, Punishment_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+
+CREATE TABLE Match_Punishment (
+    Match_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Match_ID, Punishment_ID),
+    FOREIGN KEY (Match_ID) REFERENCES Matches(Match_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+"""
+
+# Execute SQL commands
+dbExecute(con, sql_script)
+```
+
+## Sample Data Insertion
+
+```{r insert_data}
+sql_insert <- """
+INSERT INTO Department VALUES 
+(1, 'CSE', 'Dr. Rahman', 2005, 50000.00),
+(2, 'EEE', 'Dr. Alam', 2010, 60000.00),
+(3, 'BBA', 'Dr. Khan', 2012, 55000.00);
+
+INSERT INTO Player VALUES 
+(1, 'David Miller', '1234567890', 22, 'Forward', 90, 4.5, 1),
+(2, 'Mark Lee', '0987654321', 23, 'Midfielder', 85, 4.2, 2),
+(3, 'James Bond', '1122334455', 21, 'Defender', 88, 4.0, 3);
+"""
+dbExecute(con, sql_insert)
+```
+
+## Data Exploration
+
+### Department Table
+```{r department_data}
+department_data <- dbGetQuery(con, "SELECT * FROM Department")
+knitr::kable(department_data)
+```
+
+### Player Table
+```{r player_data}
+player_data <- dbGetQuery(con, "SELECT * FROM Player")
+knitr::kable(player_data)
+```
+
+### Visualization of Player Age Distribution
+```{r player_age}
+ggplot(player_data, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Player Age", x = "Age", y = "Count")
+```
+
+## Conclusion
+This report provides an overview of the **SportsDB** database, demonstrating SQL execution, data extraction, and visualization. The database efficiently organizes information on teams, matches, players, referees, and their interactions. Further analysis can involve advanced queries and machine learning applications in sports analytics.
+
+## Disconnect Database
+```{r disconnect_db}
+dbDisconnect(con)

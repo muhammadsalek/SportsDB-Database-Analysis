@@ -1,0 +1,2 @@
+"0","department_data <- dbGetQuery(con, ""SELECT * FROM Department"")"
+"0","knitr::kable(department_data)"

@@ -1,0 +1,109 @@
+---
+title: "🌼SportsDB Database Analysis🌼"
+author: "MD Salek Miah 🌻 MD Sourov Ahmed"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Function to check and install missing packages
+to_install <- c("DBI", "RSQLite", "ggplot2", "dplyr", "knitr")
+install_if_missing <- function(pkg) {
+  if (!requireNamespace(pkg, quietly = TRUE)) {
+    install.packages(pkg)
+  }
+  library(pkg, character.only = TRUE)
+}
+
+# Install and load required packages
+lapply(to_install, install_if_missing)
+```
+
+## Introduction 🌼🌻
+
+This report provides an analysis of the **SportsDB** database, including the structure and sample data for all 13 tables. The database contains information on departments, teams, matches, players, referees, scores, and punishments related to sports events.
+
+## Database Connection and Table Overview 🌼🌻
+
+```{r connect_db}
+# Drop tables if they exist before creating new ones
+dbExecute(con, "DROP TABLE IF EXISTS Department;")
+dbExecute(con, "DROP TABLE IF EXISTS Team;")
+dbExecute(con, "DROP TABLE IF EXISTS Matches;")
+dbExecute(con, "DROP TABLE IF EXISTS Participate;")
+dbExecute(con, "DROP TABLE IF EXISTS Player;")
+# Repeat for other tables if needed...
+
+# Now execute the SQL script to create tables again
+dbExecute(con, sql_script_part1)
+dbExecute(con, sql_script_part2)
+dbExecute(con, sql_script_part3)
+dbExecute(con, sql_script_part4)
+dbExecute(con, sql_script_part5)
+
+# Verify tables again
+dbListTables(con)
+
+
+
+```
+
+## Sample Data Insertion 🌼🌻
+
+```{r insert_data}
+# SQL insert statements (without the extra semicolons)
+sql_insert_part1 <- "INSERT INTO Department VALUES (1, 'CSE', 'Dr. Rahman', 2005, 50000.00);"
+sql_insert_part2 <- "INSERT INTO Department VALUES (2, 'EEE', 'Dr. Alam', 2010, 60000.00);"
+sql_insert_part3 <- "INSERT INTO Department VALUES (3, 'BBA', 'Dr. Khan', 2012, 55000.00);"
+
+sql_insert_part4 <- "INSERT INTO Player VALUES (1, 'David Miller', '1234567890', 22, 'Forward', 90, 4.5, 1);"
+sql_insert_part5 <- "INSERT INTO Player VALUES (2, 'Mark Lee', '0987654321', 23, 'Midfielder', 85, 4.2, 2);"
+sql_insert_part6 <- "INSERT INTO Player VALUES (3, 'James Bond', '1122334455', 21, 'Defender', 88, 4.0, 3);"
+
+# Execute each insert statement
+dbExecute(con, sql_insert_part1)
+dbExecute(con, sql_insert_part2)
+dbExecute(con, sql_insert_part3)
+dbExecute(con, sql_insert_part4)
+dbExecute(con, sql_insert_part5)
+dbExecute(con, sql_insert_part6)
+
+# Verify inserted data
+dbGetQuery(con, "SELECT * FROM Department;")
+dbGetQuery(con, "SELECT * FROM Player;")
+
+```
+
+## Data Exploration 🌼🌻
+
+### Department Table 🌼🌻
+
+```{r department_data}
+department_data <- dbGetQuery(con, "SELECT * FROM Department")
+knitr::kable(department_data)
+```
+
+### Player Table 🌼🌻
+
+```{r player_data}
+player_data <- dbGetQuery(con, "SELECT * FROM Player")
+knitr::kable(player_data)
+```
+
+### Visualization of Player Age Distribution 🌼🌻
+
+```{r player_age}
+ggplot(player_data, aes(x = Age)) +
+  geom_histogram(binwidth = 1, fill = "steelblue", color = "black") +
+  labs(title = "Distribution of Player Age", x = "Age", y = "Count")
+```
+
+## Conclusion 🌼🌻
+
+This report provides an overview of the **SportsDB** database, demonstrating SQL execution, data extraction, and visualization. The database efficiently organizes information on teams, matches, players, referees, and their interactions. Further analysis can involve advanced queries and machine learning applications in sports analytics.
+
+## Disconnect Database 🌼🌻
+
+\`\`\`{r disconnect_db} dbDisconnect(con)
