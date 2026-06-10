@@ -1,0 +1,28 @@
+-- Retrieve all departments with budget greater than 200,000,000
+SELECT Dept_Code, Dept_Short_Name, Dept_Head, Established_Year, Budget 
+FROM Department 
+WHERE Budget > 200000000;
+-- Retrieve the total number of players in each team
+SELECT T.Name AS Team_Name, COUNT(P.Player_ID) AS Total_Players
+FROM Team T
+LEFT JOIN Player P ON T.Team_ID = P.Team_ID
+GROUP BY T.Name;
+-- Retrieve players who have scored in matches where the total goals scored by their team is more than 2
+SELECT P.Name AS Player_Name, P.Position, M.Stadium_Name, M.Date
+FROM Player P
+JOIN Match_Player MP ON P.Player_ID = MP.Player_ID
+JOIN `Match` M ON MP.Match_ID = M.Match_ID
+WHERE M.Match_ID IN (
+    SELECT M.Match_ID
+    FROM Score S
+    JOIN `Match` M ON S.Match_ID = M.Match_ID
+    WHERE S.Number > 2
+);
+-- Retrieve details of teams and their players
+SELECT T.Name AS Team_Name, T.Manager, P.Name AS Player_Name, P.Position
+FROM Team T
+INNER JOIN Player P ON T.Team_ID = P.Team_ID;
+-- Retrieve all teams and their players, including teams without players
+SELECT T.Name AS Team_Name, P.Name AS Player_Name
+FROM Team T
+LEFT JOIN Player P ON T.Team_ID = P.Team_ID;

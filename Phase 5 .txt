@@ -1,0 +1,21 @@
+1. Basic SELECT-FROM-WHERE Query (No Joins, No Aggregates)
+
+SELECT Name, Age, Position 
+FROM Player 
+WHERE Age > 25;
+
+# 2. SELECT Query with Aggregate Functions and GROUP BY
+
+SELECT Team_ID, COUNT(Player_ID) AS Player_Count 
+FROM Player 
+GROUP BY Team_ID
+HAVING COUNT(Player_ID) > 1;
+
+
+#3. SELECT Query with a Nested Subquery
+SELECT Name, Age, Position 
+FROM Player 
+WHERE Team_ID = (
+    SELECT Team_ID 
+    FROM Team 
+    WHERE Name = 'France'

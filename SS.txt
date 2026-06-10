@@ -1,0 +1,380 @@
+/*-- Create and use the database
+CREATE DATABASE IF NOT EXISTS football_league;
+USE football_league;
+
+-- Create Department table
+CREATE TABLE IF NOT EXISTS Department (
+    Dept_Code VARCHAR(10) PRIMARY KEY,
+    Dept_short_name VARCHAR(50) NOT NULL,
+    Dept_Head VARCHAR(100),
+    Established_Year INT,
+    Budget DECIMAL(12, 2)
+);
+
+-- Create Team table
+CREATE TABLE IF NOT EXISTS Team (
+    Team_ID VARCHAR(10) PRIMARY KEY,
+    Dept_code VARCHAR(10),
+    Manager VARCHAR(100),
+    Name VARCHAR(100) NOT NULL,
+    Player_Reg_ID VARCHAR(20),
+    FOREIGN KEY (Dept_code) REFERENCES Department(Dept_Code)
+);
+
+-- Create Match table
+CREATE TABLE IF NOT EXISTS `Match` (
+    Match_ID VARCHAR(10) PRIMARY KEY,
+    Stadium_Name VARCHAR(100),
+    Date DATE,
+    Team1_ID VARCHAR(10),
+    Team2_ID VARCHAR(10),
+    FOREIGN KEY (Team1_ID) REFERENCES Team(Team_ID),
+    FOREIGN KEY (Team2_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Participate table (junction table between Department and Match)
+CREATE TABLE IF NOT EXISTS Participate (
+    Dept_code VARCHAR(10),
+    Match_ID VARCHAR(10),
+    PRIMARY KEY (Dept_code, Match_ID),
+    FOREIGN KEY (Dept_code) REFERENCES Department(Dept_Code),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID)
+);
+
+-- Create Team_Match table (junction table between Team and Match)
+CREATE TABLE IF NOT EXISTS Team_Match (
+    Team_ID VARCHAR(10),
+    Match_ID VARCHAR(10),
+    PRIMARY KEY (Team_ID, Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID)
+);
+
+-- Create Player table
+CREATE TABLE IF NOT EXISTS Player (
+    Player_ID VARCHAR(10) PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Contact_No VARCHAR(15),
+    Age INT,
+    Position VARCHAR(50),
+    Minutes_Played INT,
+    Skills_Rating DECIMAL(3, 1),
+    Team_ID VARCHAR(10),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Match_Player table (junction table between Match and Player)
+CREATE TABLE IF NOT EXISTS Match_Player (
+    Match_ID VARCHAR(10),
+    Player_ID VARCHAR(10),
+    PRIMARY KEY (Match_ID, Player_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID)
+);
+
+-- Create Score table
+CREATE TABLE IF NOT EXISTS Score (
+    Score_ID VARCHAR(10) PRIMARY KEY,
+    Number INT,
+    Duration INT,
+    Match_ID VARCHAR(10),
+    Team_ID VARCHAR(10),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID)
+);
+
+-- Create Contributed table (junction table between Player and Score)
+CREATE TABLE IF NOT EXISTS Contributed (
+    Player_ID VARCHAR(10),
+    Score_ID VARCHAR(10),
+    Match_ID VARCHAR(10),
+    PRIMARY KEY (Player_ID, Score_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Score_ID) REFERENCES Score(Score_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID)
+);
+
+-- Create Referee table
+CREATE TABLE IF NOT EXISTS Referee (
+    Referee_ID VARCHAR(10) PRIMARY KEY,
+    Role VARCHAR(50),
+    Name VARCHAR(100) NOT NULL,
+    Age INT,
+    Institute VARCHAR(100)
+);
+
+-- Create Referee_Matches table (junction table between Referee and Match)
+CREATE TABLE IF NOT EXISTS Referee_Matches (
+    Referee_ID VARCHAR(10),
+    Match_ID VARCHAR(10),
+    PRIMARY KEY (Referee_ID, Match_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID)
+);
+
+-- Create Punishment table
+CREATE TABLE IF NOT EXISTS Punishment (
+    Punishment_ID VARCHAR(10) PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Player_Semester VARCHAR(20),
+    Referee_ID VARCHAR(10),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID)
+);
+
+-- Create Match_Punishment table (junction table between Match and Punishment)
+CREATE TABLE IF NOT EXISTS Match_Punishment (
+    Match_ID VARCHAR(10),
+    Punishment_ID VARCHAR(10),
+    PRIMARY KEY (Match_ID, Punishment_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+
+-- Create Player_Punishment table (junction table between Player and Punishment)
+CREATE TABLE IF NOT EXISTS Player_Punishment (
+    Player_ID VARCHAR(10),
+    Punishment_ID VARCHAR(10),
+    PRIMARY KEY (Player_ID, Punishment_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID)
+);
+
+-- Insert sample data
+
+-- Insert into Department
+INSERT INTO Department VALUES ('D001', 'CS', 'Dr. James Smith', 1985, 120000.00);
+INSERT INTO Department VALUES ('D002', 'ENG', 'Dr. Lisa Johnson', 1990, 110000.00);
+INSERT INTO Department VALUES ('D003', 'BUS', 'Dr. Robert Williams', 1988, 130000.00);
+INSERT INTO Department VALUES ('D004', 'MED', 'Dr. Sarah Davis', 1992, 150000.00);
+
+-- Insert into Team
+INSERT INTO Team VALUES ('T001', 'D001', 'Mike Anderson', 'CS Tigers', 'PR001');
+INSERT INTO Team VALUES ('T002', 'D002', 'Emily Wilson', 'Engineering Eagles', 'PR002');
+INSERT INTO Team VALUES ('T003', 'D003', 'Daniel Martin', 'Business Bulls', 'PR003');
+INSERT INTO Team VALUES ('T004', 'D004', 'Julia Garcia', 'Medical Mavericks', 'PR004');
+INSERT INTO Team VALUES ('T005', 'D001', 'Alex Thompson', 'CS Panthers', 'PR005');
+
+-- Insert into Match
+INSERT INTO `Match` VALUES ('M001', 'Central Stadium', '2024-10-01', 'T001', 'T002');
+INSERT INTO `Match` VALUES ('M002', 'University Arena', '2024-10-08', 'T003', 'T004');
+INSERT INTO `Match` VALUES ('M003', 'Sports Complex', '2024-10-15', 'T001', 'T003');
+INSERT INTO `Match` VALUES ('M004', 'Olympic Field', '2024-10-22', 'T002', 'T004');
+INSERT INTO `Match` VALUES ('M005', 'Victory Stadium', '2024-10-29', 'T005', 'T004');
+
+-- Insert into Participate
+INSERT INTO Participate VALUES ('D001', 'M001');
+INSERT INTO Participate VALUES ('D002', 'M001');
+INSERT INTO Participate VALUES ('D003', 'M002');
+INSERT INTO Participate VALUES ('D004', 'M002');
+INSERT INTO Participate VALUES ('D001', 'M003');
+INSERT INTO Participate VALUES ('D003', 'M003');
+
+-- Insert into Team_Match
+INSERT INTO Team_Match VALUES ('T001', 'M001');
+INSERT INTO Team_Match VALUES ('T002', 'M001');
+INSERT INTO Team_Match VALUES ('T003', 'M002');
+INSERT INTO Team_Match VALUES ('T004', 'M002');
+INSERT INTO Team_Match VALUES ('T001', 'M003');
+INSERT INTO Team_Match VALUES ('T003', 'M003');
+INSERT INTO Team_Match VALUES ('T005', 'M005');
+INSERT INTO Team_Match VALUES ('T004', 'M005');
+
+-- Insert into Player
+INSERT INTO Player VALUES ('P001', 'John Smith', '555-1234', 20, 'Forward', 120, 8.5, 'T001');
+INSERT INTO Player VALUES ('P002', 'David Jones', '555-2345', 21, 'Midfielder', 90, 7.8, 'T001');
+INSERT INTO Player VALUES ('P003', 'Michael Brown', '555-3456', 22, 'Defender', 180, 8.2, 'T001');
+INSERT INTO Player VALUES ('P004', 'Chris Wilson', '555-4567', 20, 'Forward', 150, 9.0, 'T002');
+INSERT INTO Player VALUES ('P005', 'Mark Taylor', '555-5678', 19, 'Goalkeeper', 180, 8.7, 'T002');
+INSERT INTO Player VALUES ('P006', 'Paul White', '555-6789', 21, 'Defender', 160, 7.5, 'T002');
+INSERT INTO Player VALUES ('P007', 'Steven Green', '555-7890', 22, 'Midfielder', 170, 8.9, 'T003');
+INSERT INTO Player VALUES ('P008', 'Thomas Brown', '555-8901', 20, 'Forward', 130, 8.3, 'T003');
+INSERT INTO Player VALUES ('P009', 'Kevin Miller', '555-9012', 23, 'Defender', 180, 7.9, 'T003');
+INSERT INTO Player VALUES ('P010', 'Andrew Davis', '555-0123', 21, 'Goalkeeper', 180, 8.4, 'T004');
+INSERT INTO Player VALUES ('P011', 'Robert Johnson', '555-1122', 22, 'Forward', 140, 8.6, 'T004');
+INSERT INTO Player VALUES ('P012', 'Richard Lee', '555-2233', 20, 'Midfielder', 150, 7.7, 'T004');
+INSERT INTO Player VALUES ('P013', 'Lucas Chen', '555-3344', 21, 'Forward', 135, 8.8, 'T005');
+INSERT INTO Player VALUES ('P014', 'Jay Wilson', '555-4455', 22, 'Defender', 180, 8.1, 'T005');
+INSERT INTO Player VALUES ('P015', 'Sam Harris', '555-5566', 20, 'Midfielder', 160, 7.9, 'T005');
+
+-- Insert into Match_Player
+INSERT INTO Match_Player VALUES ('M001', 'P001');
+INSERT INTO Match_Player VALUES ('M001', 'P002');
+INSERT INTO Match_Player VALUES ('M001', 'P003');
+INSERT INTO Match_Player VALUES ('M001', 'P004');
+INSERT INTO Match_Player VALUES ('M001', 'P005');
+INSERT INTO Match_Player VALUES ('M002', 'P007');
+INSERT INTO Match_Player VALUES ('M002', 'P008');
+INSERT INTO Match_Player VALUES ('M002', 'P010');
+INSERT INTO Match_Player VALUES ('M002', 'P011');
+INSERT INTO Match_Player VALUES ('M003', 'P001');
+INSERT INTO Match_Player VALUES ('M003', 'P003');
+INSERT INTO Match_Player VALUES ('M003', 'P007');
+INSERT INTO Match_Player VALUES ('M003', 'P009');
+INSERT INTO Match_Player VALUES ('M005', 'P013');
+INSERT INTO Match_Player VALUES ('M005', 'P014');
+INSERT INTO Match_Player VALUES ('M005', 'P010');
+INSERT INTO Match_Player VALUES ('M005', 'P012');
+
+-- Insert into Referee
+INSERT INTO Referee VALUES ('R001', 'Main', 'James Wilson', 35, 'National Referee Association');
+INSERT INTO Referee VALUES ('R002', 'Assistant', 'Mary Johnson', 32, 'State Referee Institute');
+INSERT INTO Referee VALUES ('R003', 'Main', 'Robert Davis', 40, 'National Referee Association');
+INSERT INTO Referee VALUES ('R004', 'Assistant', 'Jennifer Brown', 38, 'State Referee Institute');
+INSERT INTO Referee VALUES ('R005', 'Main', 'William Clark', 36, 'National Referee Association');
+
+-- Insert into Referee_Matches
+INSERT INTO Referee_Matches VALUES ('R001', 'M001');
+INSERT INTO Referee_Matches VALUES ('R002', 'M001');
+INSERT INTO Referee_Matches VALUES ('R003', 'M002');
+INSERT INTO Referee_Matches VALUES ('R004', 'M002');
+INSERT INTO Referee_Matches VALUES ('R001', 'M003');
+INSERT INTO Referee_Matches VALUES ('R002', 'M003');
+INSERT INTO Referee_Matches VALUES ('R005', 'M004');
+INSERT INTO Referee_Matches VALUES ('R004', 'M004');
+INSERT INTO Referee_Matches VALUES ('R003', 'M005');
+INSERT INTO Referee_Matches VALUES ('R002', 'M005');
+
+-- Insert into Punishment
+INSERT INTO Punishment VALUES ('PU001', 'Yellow Card', 'Fall 2024', 'R001');
+INSERT INTO Punishment VALUES ('PU002', 'Red Card', 'Fall 2024', 'R001');
+INSERT INTO Punishment VALUES ('PU003', 'Verbal Warning', 'Fall 2024', 'R003');
+INSERT INTO Punishment VALUES ('PU004', 'Match Suspension', 'Fall 2024', 'R003');
+INSERT INTO Punishment VALUES ('PU005', 'Yellow Card', 'Fall 2024', 'R005');
+
+-- Insert into Match_Punishment
+INSERT INTO Match_Punishment VALUES ('M001', 'PU001');
+INSERT INTO Match_Punishment VALUES ('M001', 'PU002');
+INSERT INTO Match_Punishment VALUES ('M002', 'PU003');
+INSERT INTO Match_Punishment VALUES ('M003', 'PU001');
+INSERT INTO Match_Punishment VALUES ('M004', 'PU005');
+INSERT INTO Match_Punishment VALUES ('M005', 'PU004');
+
+-- Insert into Player_Punishment
+INSERT INTO Player_Punishment VALUES ('P002', 'PU001');
+INSERT INTO Player_Punishment VALUES ('P004', 'PU002');
+INSERT INTO Player_Punishment VALUES ('P007', 'PU003');
+INSERT INTO Player_Punishment VALUES ('P001', 'PU001');
+INSERT INTO Player_Punishment VALUES ('P006', 'PU005');
+INSERT INTO Player_Punishment VALUES ('P013', 'PU004');
+
+-- Insert into Score
+INSERT INTO Score VALUES ('S001', 1, 25, 'M001', 'T001');
+INSERT INTO Score VALUES ('S002', 2, 67, 'M001', 'T002');
+INSERT INTO Score VALUES ('S003', 1, 38, 'M002', 'T003');
+INSERT INTO Score VALUES ('S004', 3, 72, 'M002', 'T004');
+INSERT INTO Score VALUES ('S005', 2, 45, 'M003', 'T001');
+INSERT INTO Score VALUES ('S006', 1, 56, 'M003', 'T003');
+INSERT INTO Score VALUES ('S007', 2, 30, 'M004', 'T004');
+INSERT INTO Score VALUES ('S008', 3, 65, 'M005', 'T005');
+INSERT INTO Score VALUES ('S009', 1, 80, 'M005', 'T004');
+
+-- Insert into Contributed
+INSERT INTO Contributed VALUES ('P001', 'S001', 'M001');
+INSERT INTO Contributed VALUES ('P004', 'S002', 'M001');
+INSERT INTO Contributed VALUES ('P007', 'S003', 'M002');
+INSERT INTO Contributed VALUES ('P011', 'S004', 'M002');
+INSERT INTO Contributed VALUES ('P002', 'S005', 'M003');
+INSERT INTO Contributed VALUES ('P008', 'S006', 'M003');
+INSERT INTO Contributed VALUES ('P012', 'S007', 'M004');
+INSERT INTO Contributed VALUES ('P013', 'S008', 'M005');
+INSERT INTO Contributed VALUES ('P010', 'S009', 'M005');
+
+*/
+
+
+
+/*
+-- SQL file with five SELECT queries for the Football League Database
+
+-- 1. Simple SELECT-FROM-WHERE query (no joins, no subqueries, no aggregates)
+-- Query to find all players who are forwards and have a skills rating above 8.0
+SELECT Player_ID, Name, Age, Skills_Rating, Team_ID 
+FROM Player
+WHERE Position = 'Forward' AND Skills_Rating > 8.0;
+
+-- 2. SELECT query using aggregate functions with GROUP BY
+-- Query to find the total number of players in each team and their average skills rating
+SELECT Team_ID, COUNT(*) AS NumberOfPlayers, AVG(Skills_Rating) AS AverageSkillsRating, 
+       MAX(Skills_Rating) AS HighestSkillsRating
+FROM Player
+GROUP BY Team_ID
+HAVING AVG(Skills_Rating) > 8.0;
+
+-- 3. SELECT query using nested subqueries
+-- Query to find all matches where the highest skilled player participated
+SELECT m.Match_ID, m.Stadium_Name, m.Date, m.Team1_ID, m.Team2_ID
+FROM `Match` m
+WHERE m.Match_ID IN (
+    SELECT mp.Match_ID
+    FROM Match_Player mp
+    WHERE mp.Player_ID = (
+        SELECT p.Player_ID
+        FROM Player p
+        ORDER BY p.Skills_Rating DESC
+        LIMIT 1
+    )
+);
+
+-- 4. SELECT query using JOIN (First join query)
+-- Query to find all punishments given in matches and the players who received them
+SELECT m.Match_ID, m.Date, m.Stadium_Name, p.Name AS PlayerName, 
+       pu.Name AS PunishmentType, pu.Player_Semester
+FROM `Match` m
+INNER JOIN Match_Punishment mp ON m.Match_ID = mp.Match_ID
+INNER JOIN Punishment pu ON mp.Punishment_ID = pu.Punishment_ID
+INNER JOIN Player_Punishment pp ON pu.Punishment_ID = pp.Punishment_ID
+INNER JOIN Player p ON pp.Player_ID = p.Player_ID
+ORDER BY m.Date, p.Name;
+
+-- 5. SELECT query using JOIN (Second join query)
+-- Query to find all matches with their scores, grouped by teams
+SELECT t.Name AS TeamName, m.Match_ID, m.Date, m.Stadium_Name, 
+       SUM(s.Number) AS TotalScore
+FROM Team t
+LEFT JOIN Team_Match tm ON t.Team_ID = tm.Team_ID
+LEFT JOIN `Match` m ON tm.Match_ID = m.Match_ID
+LEFT JOIN Score s ON (m.Match_ID = s.Match_ID AND t.Team_ID = s.Team_ID)
+GROUP BY t.Name, m.Match_ID, m.Date, m.Stadium_Name
+ORDER BY m.Date, t.Name;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

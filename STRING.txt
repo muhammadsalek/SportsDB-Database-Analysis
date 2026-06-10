@@ -1,0 +1,719 @@
+CREATE DATABASE IF NOT EXISTS SportsManagementDB;
+USE SportsManagementDB;
+
+-- Department Table
+CREATE TABLE IF NOT EXISTS Department (
+    Dept_Code INT PRIMARY KEY,
+    Dept_Short_Name VARCHAR(50) NOT NULL UNIQUE,
+    Dept_Head VARCHAR(100) NOT NULL,
+    Established_Year YEAR,
+    Budget DECIMAL(15,2) CHECK (Budget >= 0)
+);
+
+-- Team Table
+CREATE TABLE IF NOT EXISTS Team (
+    Team_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Dept_Code INT NOT NULL,
+    Manager VARCHAR(100) NOT NULL,
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Player_Reg_ID INT UNIQUE,
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code) ON DELETE CASCADE
+);
+
+-- Player Table
+CREATE TABLE IF NOT EXISTS Player (
+    Player_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Contact_No VARCHAR(15) UNIQUE,
+    Age INT CHECK (Age BETWEEN 16 AND 50),
+    Position VARCHAR(50) NOT NULL,
+    Minutes_Played INT CHECK (Minutes_Played >= 0),
+    Skills_Rating DECIMAL(3,2) CHECK (Skills_Rating BETWEEN 0.0 AND 10.0),
+    Team_ID INT,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE SET NULL
+);
+
+-- Match Table (Backtick `Match` to avoid reserved word conflict)
+CREATE TABLE IF NOT EXISTS `Match` (
+    Match_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Stadium_Name VARCHAR(100) NOT NULL,
+    Date DATE NOT NULL,
+    Team1_ID INT NOT NULL,
+    Team2_ID INT NOT NULL,
+    FOREIGN KEY (Team1_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Team2_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE
+);
+
+-- Score Table
+CREATE TABLE IF NOT EXISTS Score (
+    Score_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Number INT CHECK (Number >= 0),
+    Duration TIME NOT NULL,
+    Match_ID INT NOT NULL,
+    Team_ID INT NOT NULL,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE
+);
+
+-- Participate Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Participate (
+    Dept_Code INT,
+    Match_ID INT,
+    PRIMARY KEY (Dept_Code, Match_ID),
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Team_Match Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Team_Match (
+    Team_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Team_ID, Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Match_Player Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Match_Player (
+    Match_ID INT,
+    Player_ID INT,
+    PRIMARY KEY (Match_ID, Player_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE
+);
+
+-- Contributed Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Contributed (
+    Player_ID INT,
+    Score_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Player_ID, Score_ID, Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Score_ID) REFERENCES Score(Score_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Referee Table
+CREATE TABLE IF NOT EXISTS Referee (
+    Referee_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Role VARCHAR(50) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    Age INT CHECK (Age BETWEEN 18 AND 60),
+    Institute VARCHAR(100) NOT NULL
+);
+
+-- Referee_Matches Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Referee_Matches (
+    Referee_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Referee_ID, Match_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Punishment Table
+CREATE TABLE IF NOT EXISTS Punishment (
+    Punishment_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Player_ID INT,
+    Player_Semester INT CHECK (Player_Semester BETWEEN 1 AND 8),
+    Referee_ID INT NOT NULL,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID) ON DELETE CASCADE
+);
+
+-- Player_Punishment Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Player_Punishment (
+    Player_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Player_ID, Punishment_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID) ON DELETE CASCADE
+);
+
+-- Match_Punishment Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Match_Punishment (
+    Punishment_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Punishment_ID, Match_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+
+-- Insert into Department
+INSERT INTO Department (Dept_Code, Dept_Short_Name, Dept_Head, Established_Year, Budget) VALUES
+(1, 'FIFA', 'Gianni Infantino', 1904, 500000000),
+(2, 'UEFA', 'Aleksander Čeferin', 1954, 300000000),
+(3, 'AFC', 'Sheikh Salman', 1954, 200000000);
+
+-- Insert into Team
+INSERT INTO Team (Dept_Code, Manager, Name, Player_Reg_ID) VALUES
+(1, 'Didier Deschamps', 'France', 101),
+(1, 'Gardioala', 'Spain', 102),
+(1, 'Gareth Southgate', 'England', 103);
+
+-- Insert into Player
+INSERT INTO Player (Name, Contact_No, Age, Position, Minutes_Played, Skills_Rating, Team_ID) VALUES
+('Kylian Mbappe', '1234567890', 24, 'Forward', 400, 9.5, 1),
+('Xavi', '2345678901', 30, 'Forward', 450, 9.2, 2),
+('Harry Kane', '3456789012', 30, 'Striker', 480, 9.0, 3);
+
+-- Insert into Match
+INSERT INTO `Match` (Stadium_Name, Date, Team1_ID, Team2_ID) VALUES
+('Lusail Stadium', '2022-12-18', 1, 2),
+('Khalifa Stadium', '2022-12-14', 2, 3),
+('Al Bayt Stadium', '2022-12-10', 1, 3);
+
+-- Insert into Score
+INSERT INTO Score (Number, Duration, Match_ID, Team_ID) VALUES
+(3, '01:30:00', 1, 1),
+(2, '01:30:00', 1, 2),
+(1, '01:30:00', 2, 3);
+
+-- Insert into Participate
+INSERT INTO Participate (Dept_Code, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Team_Match
+INSERT INTO Team_Match (Team_ID, Match_ID) VALUES
+(1, 1),
+(2, 1),
+(3, 2);
+
+-- Insert into Match_Player
+INSERT INTO Match_Player (Match_ID, Player_ID) VALUES
+(1, 1),
+(1, 2),
+(2, 3);
+
+
+-- Insert into Contributed
+INSERT INTO Contributed (Player_ID, Score_ID, Match_ID) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 2);
+
+-- Insert into Referee
+INSERT INTO Referee (Role, Name, Age, Institute) VALUES
+('Main Referee', 'Pierluigi Collina', 55, 'FIFA'),
+('Assistant Referee', 'Daniele Orsato', 47, 'UEFA'),
+('VAR Official', 'Antonio Mateu Lahoz', 45, 'FIFA');
+
+-- Insert into Referee_Matches
+INSERT INTO Referee_Matches (Referee_ID, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Punishment
+INSERT INTO Punishment (Name, Player_ID, Player_Semester, Referee_ID) VALUES
+('Yellow Card', 1, 2, 1),
+('Red Card', 2, 3, 2),
+('Suspension', 3, 1, 3);
+
+-- Insert into Player_Punishment
+INSERT INTO Player_Punishment (Player_ID, Punishment_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Match_Punishment
+INSERT INTO Match_Punishment (Punishment_ID, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

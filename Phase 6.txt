@@ -1,0 +1,882 @@
+/*CREATE DATABASE IF NOT EXISTS SportsManagementDB;
+USE SportsManagementDB;
+
+-- Department Table
+CREATE TABLE IF NOT EXISTS Department (
+    Dept_Code INT PRIMARY KEY,
+    Dept_Short_Name VARCHAR(50) NOT NULL UNIQUE,
+    Dept_Head VARCHAR(100) NOT NULL,
+    Established_Year YEAR,
+    Budget DECIMAL(15,2) CHECK (Budget >= 0)
+);
+
+-- Team Table
+CREATE TABLE IF NOT EXISTS Team (
+    Team_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Dept_Code INT NOT NULL,
+    Manager VARCHAR(100) NOT NULL,
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Player_Reg_ID INT UNIQUE,
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code) ON DELETE CASCADE
+);
+
+-- Player Table
+CREATE TABLE IF NOT EXISTS Player (
+    Player_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Contact_No VARCHAR(15) UNIQUE,
+    Age INT CHECK (Age BETWEEN 16 AND 50),
+    Position VARCHAR(50) NOT NULL,
+    Minutes_Played INT CHECK (Minutes_Played >= 0),
+    Skills_Rating DECIMAL(3,2) CHECK (Skills_Rating BETWEEN 0.0 AND 10.0),
+    Team_ID INT,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE SET NULL
+);
+
+-- Match Table (Backtick `Match` to avoid reserved word conflict)
+CREATE TABLE IF NOT EXISTS `Match` (
+    Match_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Stadium_Name VARCHAR(100) NOT NULL,
+    Date DATE NOT NULL,
+    Team1_ID INT NOT NULL,
+    Team2_ID INT NOT NULL,
+    FOREIGN KEY (Team1_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Team2_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE
+);
+
+-- Score Table
+CREATE TABLE IF NOT EXISTS Score (
+    Score_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Number INT CHECK (Number >= 0),
+    Duration TIME NOT NULL,
+    Match_ID INT NOT NULL,
+    Team_ID INT NOT NULL,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE
+);
+
+-- Participate Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Participate (
+    Dept_Code INT,
+    Match_ID INT,
+    PRIMARY KEY (Dept_Code, Match_ID),
+    FOREIGN KEY (Dept_Code) REFERENCES Department(Dept_Code) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Team_Match Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Team_Match (
+    Team_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Team_ID, Match_ID),
+    FOREIGN KEY (Team_ID) REFERENCES Team(Team_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Match_Player Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Match_Player (
+    Match_ID INT,
+    Player_ID INT,
+    PRIMARY KEY (Match_ID, Player_ID),
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE
+);
+
+-- Contributed Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Contributed (
+    Player_ID INT,
+    Score_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Player_ID, Score_ID, Match_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Score_ID) REFERENCES Score(Score_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Referee Table
+CREATE TABLE IF NOT EXISTS Referee (
+    Referee_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Role VARCHAR(50) NOT NULL,
+    Name VARCHAR(100) NOT NULL,
+    Age INT CHECK (Age BETWEEN 18 AND 60),
+    Institute VARCHAR(100) NOT NULL
+);
+
+-- Referee_Matches Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Referee_Matches (
+    Referee_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Referee_ID, Match_ID),
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+
+-- Punishment Table
+CREATE TABLE IF NOT EXISTS Punishment (
+    Punishment_ID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(100) NOT NULL,
+    Player_ID INT,
+    Player_Semester INT CHECK (Player_Semester BETWEEN 1 AND 8),
+    Referee_ID INT NOT NULL,
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE SET NULL,
+    FOREIGN KEY (Referee_ID) REFERENCES Referee(Referee_ID) ON DELETE CASCADE
+);
+
+-- Player_Punishment Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Player_Punishment (
+    Player_ID INT,
+    Punishment_ID INT,
+    PRIMARY KEY (Player_ID, Punishment_ID),
+    FOREIGN KEY (Player_ID) REFERENCES Player(Player_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID) ON DELETE CASCADE
+);
+
+-- Match_Punishment Table (Bridge Table)
+CREATE TABLE IF NOT EXISTS Match_Punishment (
+    Punishment_ID INT,
+    Match_ID INT,
+    PRIMARY KEY (Punishment_ID, Match_ID),
+    FOREIGN KEY (Punishment_ID) REFERENCES Punishment(Punishment_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Match_ID) REFERENCES `Match`(Match_ID) ON DELETE CASCADE
+);
+*/
+
+
+
+
+
+
+/*
+-- Insert into Department
+INSERT INTO Department (Dept_Code, Dept_Short_Name, Dept_Head, Established_Year, Budget) VALUES
+(1, 'FIFA', 'Gianni Infantino', 1904, 500000000),
+(2, 'UEFA', 'Aleksander Čeferin', 1954, 300000000),
+(3, 'AFC', 'Sheikh Salman', 1954, 200000000);
+
+-- Insert into Team
+INSERT INTO Team (Dept_Code, Manager, Name, Player_Reg_ID) VALUES
+(1, 'Didier Deschamps', 'France', 101),
+(1, 'Gardioala', 'Spain', 102),
+(1, 'Gareth Southgate', 'England', 103);
+
+-- Insert into Player
+INSERT INTO Player (Name, Contact_No, Age, Position, Minutes_Played, Skills_Rating, Team_ID) VALUES
+('Kylian Mbappe', '1234567890', 24, 'Forward', 400, 9.5, 1),
+('Xavi', '2345678901', 30, 'Forward', 450, 9.2, 2),
+('Harry Kane', '3456789012', 30, 'Striker', 480, 9.0, 3);
+
+-- Insert into Match
+INSERT INTO `Match` (Stadium_Name, Date, Team1_ID, Team2_ID) VALUES
+('Lusail Stadium', '2022-12-18', 1, 2),
+('Khalifa Stadium', '2022-12-14', 2, 3),
+('Al Bayt Stadium', '2022-12-10', 1, 3);
+
+-- Insert into Score
+INSERT INTO Score (Number, Duration, Match_ID, Team_ID) VALUES
+(3, '01:30:00', 1, 1),
+(2, '01:30:00', 1, 2),
+(1, '01:30:00', 2, 3);
+
+-- Insert into Participate
+INSERT INTO Participate (Dept_Code, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Team_Match
+INSERT INTO Team_Match (Team_ID, Match_ID) VALUES
+(1, 1),
+(2, 1),
+(3, 2);
+
+-- Insert into Match_Player
+INSERT INTO Match_Player (Match_ID, Player_ID) VALUES
+(1, 1),
+(1, 2),
+(2, 3);
+
+
+-- Insert into Contributed
+INSERT INTO Contributed (Player_ID, Score_ID, Match_ID) VALUES
+(1, 1, 1),
+(2, 2, 1),
+(3, 3, 2);
+
+-- Insert into Referee
+INSERT INTO Referee (Role, Name, Age, Institute) VALUES
+('Main Referee', 'Pierluigi Collina', 55, 'FIFA'),
+('Assistant Referee', 'Daniele Orsato', 47, 'UEFA'),
+('VAR Official', 'Antonio Mateu Lahoz', 45, 'FIFA');
+
+-- Insert into Referee_Matches
+INSERT INTO Referee_Matches (Referee_ID, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Punishment
+INSERT INTO Punishment (Name, Player_ID, Player_Semester, Referee_ID) VALUES
+('Yellow Card', 1, 2, 1),
+('Red Card', 2, 3, 2),
+('Suspension', 3, 1, 3);
+
+-- Insert into Player_Punishment
+INSERT INTO Player_Punishment (Player_ID, Punishment_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+-- Insert into Match_Punishment
+INSERT INTO Match_Punishment (Punishment_ID, Match_ID) VALUES
+(1, 1),
+(2, 2),
+(3, 3);
+
+*/
+
+/*
+# Phase 5
+#1. Retrieve All Departments
+SELECT 
+    Dept_Code, 
+    Dept_Short_Name, 
+    Dept_Head, 
+    Established_Year, 
+    Budget 
+FROM Department;
+
+
+# 2. Retrieve All Teams with Department Information
+SELECT 
+    T.Team_ID, 
+    T.Name AS Team_Name, 
+    T.Manager, 
+    D.Dept_Short_Name AS Department, 
+    D.Dept_Head AS Department_Head 
+FROM Team T
+JOIN Department D ON T.Dept_Code = D.Dept_Code;
+3. Retrieve All Players with Their Team Information
+SELECT 
+    P.Player_ID, 
+    P.Name AS Player_Name, 
+    P.Contact_No, 
+    P.Age, 
+    P.Position, 
+    P.Minutes_Played, 
+    P.Skills_Rating, 
+    T.Name AS Team_Name, 
+    T.Manager AS Team_Manager 
+FROM Player P
+LEFT JOIN Team T ON P.Team_ID = T.Team_ID;
+
+
+# 4. Retrieve All Matches with Participating Teams
+SELECT 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    M.Date, 
+    T1.Name AS Team_One, 
+    T2.Name AS Team_Two 
+FROM `Match` M
+JOIN Team T1 ON M.Team1_ID = T1.Team_ID
+JOIN Team T2 ON M.Team2_ID = T2.Team_ID;
+
+
+
+
+#5. Retrieve Match Scores with Team Names
+SELECT 
+    S.Score_ID, 
+    S.Number AS Goals, 
+    S.Duration, 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    T.Name AS Team_Name 
+FROM Score S
+JOIN `Match` M ON S.Match_ID = M.Match_ID
+JOIN Team T ON S.Team_ID = T.Team_ID;
+
+
+# 6. Retrieve Players Who Contributed to Scores in Matches
+SELECT 
+    P.Player_ID, 
+    P.Name AS Player_Name, 
+    S.Number AS Goals_Scored, 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    M.Date 
+FROM Contributed C
+JOIN Player P ON C.Player_ID = P.Player_ID
+JOIN Score S ON C.Score_ID = S.Score_ID
+JOIN `Match` M ON C.Match_ID = M.Match_ID;
+
+
+# 7. Retrieve Referees and Their Assigned Matches
+SELECT 
+    R.Referee_ID, 
+    R.Name AS Referee_Name, 
+    R.Role, 
+    R.Institute, 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    M.Date 
+FROM Referee_Matches RM
+JOIN Referee R ON RM.Referee_ID = R.Referee_ID
+JOIN `Match` M ON RM.Match_ID = M.Match_ID;
+
+
+# 8. Retrieve Players Who Received Punishments with Details
+SELECT 
+    P.Player_ID, 
+    P.Name AS Player_Name, 
+    PN.Name AS Punishment_Type, 
+    PN.Player_Semester, 
+    R.Name AS Referee_Name, 
+    R.Institute 
+FROM Player_Punishment PP
+JOIN Player P ON PP.Player_ID = P.Player_ID
+JOIN Punishment PN ON PP.Punishment_ID = PN.Punishment_ID
+JOIN Referee R ON PN.Referee_ID = R.Referee_ID;
+
+# 9. Retrieve Matches and the Punishments Given in Each
+SELECT 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    M.Date, 
+    PN.Name AS Punishment_Type, 
+    P.Name AS Player_Name, 
+    R.Name AS Referee_Name 
+FROM Match_Punishment MP
+JOIN `Match` M ON MP.Match_ID = M.Match_ID
+JOIN Punishment PN ON MP.Punishment_ID = PN.Punishment_ID
+LEFT JOIN Player P ON PN.Player_ID = P.Player_ID
+JOIN Referee R ON PN.Referee_ID = R.Referee_ID;
+
+
+# 10. Retrieve Departments That Participated in Matches
+SELECT 
+    D.Dept_Code, 
+    D.Dept_Short_Name AS Department, 
+    M.Match_ID, 
+    M.Stadium_Name, 
+    M.Date 
+FROM Participate P
+JOIN Department D ON P.Dept_Code = D.Dept_Code
+JOIN `Match` M ON P.Match_ID = M.Match_ID;
+# 11. Retrieve All Teams with Their Players Count
+
+SELECT 
+    T.Team_ID, 
+    T.Name AS Team_Name, 
+    T.Manager, 
+    COUNT(P.Player_ID) AS Number_of_Players 
+FROM Team T
+LEFT JOIN Player P ON T.Team_ID = P.Team_ID
+GROUP BY T.Team_ID, T.Name, T.Manager;
+
+# 12. Retrieve The Total Goals Scored By Each Team
+SELECT 
+    T.Team_ID, 
+    T.Name AS Team_Name, 
+    SUM(S.Number) AS Total_Goals 
+FROM Score S
+JOIN Team T ON S.Team_ID = T.Team_ID
+GROUP BY T.Team_ID, T.Name
+ORDER BY Total_Goals DESC;
+
+# 13. Retrieve Referees Who Officiated the Most Matches
+SELECT 
+    R.Referee_ID, 
+    R.Name AS Referee_Name, 
+    R.Role, 
+    COUNT(RM.Match_ID) AS Matches_Officiated 
+FROM Referee_Matches RM
+JOIN Referee R ON RM.Referee_ID = R.Referee_ID
+GROUP BY R.Referee_ID, R.Name, R.Role
+ORDER BY Matches_Officiated DESC;
+# 14. Retrieve Players Sorted By Their Skill Rating
+SELECT 
+    Player_ID, 
+    Name AS Player_Name, 
+    Age, 
+    Position, 
+    Minutes_Played, 
+    Skills_Rating 
+FROM Player
+ORDER BY Skills_Rating DESC;
+# 15. Retrieve the Team With the Highest Average Player Skills
+SELECT 
+    T.Team_ID, 
+    T.Name AS Team_Name, 
+    ROUND(AVG(P.Skills_Rating), 2) AS Avg_Skill_Rating 
+FROM Player P
+JOIN Team T ON P.Team_ID = T.Team_ID
+GROUP BY T.Team_ID, T.Name
+ORDER BY Avg_Skill_Rating DESC
+LIMIT 1;
+# 16. Retrieve Matches Played at a Specific Stadium
+SELECT 
+    Match_ID, 
+    Stadium_Name, 
+    Date, 
+    Team1_ID, 
+    Team2_ID 
+FROM `Match`
+WHERE Stadium_Name = 'Lusail Stadium';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
